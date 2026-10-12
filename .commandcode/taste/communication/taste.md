@@ -1,0 +1,1 @@
+- Prefers action-first responses when reporting a broken feature (e.g. "//fix that") — directly fix the problem rather than lead with lengthy diagnosis or explanation. Confidence: 0.7

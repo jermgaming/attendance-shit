@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Shell(del:*)",
+      "Shell(node --version)",
+      "Shell(npm:*)",
+      "Shell(for:*)",
+      "Shell(*.js:*)",
+      "Shell(do:*)",
+      "Shell(docker:*)",
+      "Shell(curl -s http://localhost:8025/api/v1/messages)",
+      "Shell(set:*)",
+      "Shell(node C:\\Users\\atind\\AppData\\Local\\Temp\\commandcode\\D--Projects-attendence-marking\\d30d11bc-800d-4c9a-9815-59fe6480db58\\scratchpad\\recovery.js)",
+      "Shell(dir:*)",
+      "Shell(powershell -Command \"$log = Get-Content 'C:\\Users\\atind\\AppData\\Local\\Temp\\commandcode\\D--Projects-attendence-marking\\d30d11bc-800d-4c9a-9815-59fe6480db58\\scratchpad\\netlog.json' -Raw; [regex]::Matches($log, '\\\"net_error\\\"\\s*:\\s*(-?\\d+)') | ForEach-Object { $_.Value }; [regex]::Matches($log, 'ERR_[A-Z_]+') | ForEach-Object { $_.Value } | Sort-Object -Unique\")",
+      "Shell(powershell -Command \"$log = Get-Content 'C:\\Users\\atind\\AppData\\Local\\Temp\\commandcode\\D--Projects-attendence-marking\\d30d11bc-800d-4c9a-9815-59fe6480db58\\scratchpad\\netlog.json' -Raw; [regex]::Matches($log, '.{80}DIBVlPWy.{260}') | ForEach-Object { $_.Value + \\\"`n---\\\" } | Select-Object -First 12\")",
+      "Shell(powershell -Command \"$lines = Get-Content 'C:\\Users\\atind\\AppData\\Local\\Temp\\commandcode\\D--Projects-attendence-marking\\d30d11bc-800d-4c9a-9815-59fe6480db58\\scratchpad\\assets.txt'; $lines | Where-Object { $_ -match 'response|status|content-type|Content-Type|http.response|headers' } | Select-Object -First 6 | ForEach-Object { $_.Substring(0, [Math]::Min(500, $_.Length)) }\")",
+      "Shell(powershell -Command \"$log = Get-Content 'C:\\Users\\atind\\AppData\\Local\\Temp\\commandcode\\D--Projects-attendence-marking\\d30d11bc-800d-4c9a-9815-59fe6480db58\\scratchpad\\netlog.json' -Raw; [regex]::Matches($log, 'HTTP/1\\.1 \\d{3}[^\\\"]*') | ForEach-Object { $_.Value } | Sort-Object -Unique\")",
+      "powershell",
+      "Shell(\"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe\" --headless=new --disable-gpu --no-first-run --timeout=8000 --dump-dom https://example.com 2>nul | findstr /i \"example domain\")",
+      "Shell(curl -s -m 8 -o NUL -w curl LAN: %{http_code} in %{time_total}s\\n http://10.21.128.178:3000/)",
+      "Shell(curl -s -m 8 -o NUL -w curl localhost: %{http_code} in %{time_total}s\\n http://localhost:3000/)",
+      "Shell(node -e \"const net=require('net');const t=Date.now();const s=net.connect(3000,'10.21.128.178',()=>{console.log('TCP connect OK in',Date.now()-t,'ms');s.destroy();});s.on('error',e=>console.log('TCP FAIL:',e.code,'in',Date.now()-t,'ms'));s.setTimeout(8000,()=>{console.log('TCP TIMEOUT');s.destroy();});\")"
+    ],
+    "deny": [],
+    "defaultMode": "default"
+  }
+}

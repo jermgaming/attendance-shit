@@ -1,0 +1,4 @@
+- Prefers the assistant to fill in environment/configuration files (e.g. `.env`) with complete, working generated credentials rather than leaving placeholders for the user to complete. Confidence: 0.8
+- Prefers low-cost or free ways to run/deploy applications (e.g. self-hosted hotspot, free tunnels) over paid services. Confidence: 0.8
+- Prefers simple, easy operational workflows (e.g. a one-command script) over multi-step or technically complex setup. Confidence: 0.7
+- Operates on Windows with Docker Desktop; expects host-level commands in PowerShell (plus WSL) and runs/restarts the app via Docker Compose. Confidence: 0.8

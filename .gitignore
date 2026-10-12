@@ -1,0 +1,9 @@
+node_modules/
+.env
+dist/
+data/
+backups/
+*.local
+.DS_Store
+npm-debug.log*
+.commandocode
