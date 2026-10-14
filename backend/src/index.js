@@ -36,6 +36,9 @@ app.use('/api/v1/students', authenticate, requireRole('teacher', 'admin'), stude
 app.use('/api/v1/me', authenticate, requireRole('student'), meRoutes);
 app.use('/api/v1/reports', authenticate, requireRole('teacher', 'admin'), reportsRoutes);
 
+
+app.use(express.static(path.join(__dirname, "../public")));
+
 const publicDir = path.join(process.cwd(), 'public');
 if (fs.existsSync(publicDir)) {
   app.use(express.static(publicDir));
