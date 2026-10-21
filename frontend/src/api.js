@@ -16,7 +16,7 @@ export function getDeviceId() {
   return id;
 }
 
-const api = axios.create({ baseURL: '/api/v1' });
+const api = axios.create({ baseURL: '/api/v1', withCredentials: true });
 
 api.interceptors.request.use((cfg) => {
   const token = localStorage.getItem('token');

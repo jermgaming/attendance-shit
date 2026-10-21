@@ -1,11 +1,22 @@
 import { query } from '../db/pool.js';
 import { getAuthSession } from '../services/authSessionService.js';
+import { config } from '../config.js';
 import { errors } from '../utils/errors.js';
+
+export function readCookieValue(cookieHeader, name) {
+  for (const part of (cookieHeader || '').split(';')) {
+    const [key, ...rest] = part.trim().split('=');
+    if (key === name) return decodeURIComponent(rest.join('='));
+  }
+  return null;
+}
 
 export async function authenticate(req, _res, next) {
   try {
     const header = req.headers.authorization || '';
-    const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null;
+    const bearerToken = header.startsWith('Bearer ') ? header.slice(7).trim() : null;
+    const cookieToken = readCookieValue(req.headers.cookie, config.sessionCookieName);
+    const token = bearerToken || cookieToken;
     if (!token) throw errors.unauthenticated();
 
     const session = await getAuthSession(token);

@@ -7,6 +7,7 @@ export function getSocket() {
     socket = io({
       path: '/socket.io',
       auth: { token: localStorage.getItem('token') },
+      withCredentials: true,
       reconnectionDelayMax: 5000,
     });
     socket.on('connect_error', (err) => {

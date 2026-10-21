@@ -8,8 +8,8 @@ import { sendOtpEmailSafe } from './mailService.js';
 const OTP_TTL = 300;
 const ATTEMPTS_TTL = 600;
 const REQUESTS_TTL = 900;
-const MAX_ATTEMPTS = 5;
-const MAX_REQUESTS = 3;
+const MAX_ATTEMPTS = config.otpMaxAttempts;
+const MAX_REQUESTS = config.otpMaxRequests;
 
 function hashOtp(code) {
   return crypto.createHmac('sha256', config.jwtSecret).update(`otp:${code}`).digest('hex');

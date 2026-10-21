@@ -27,14 +27,24 @@ function publicUser(user) {
   };
 }
 
-router.post('/otp/request', ipRateLimit({ route: 'otp-request', limit: 10 }), validate(emailSchema),
+router.post('/otp/request', ipRateLimit({ route: 'otp-request', limit: 60 }), validate(emailSchema),
   asyncHandler(async (req, res) => {
     const { expiresInSeconds } = await requestOtp(req.body.email);
     res.json({ message: 'If this email is registered, a code has been sent.', expiresInSeconds });
   }),
 );
 
-router.post('/otp/verify', ipRateLimit({ route: 'otp-verify', limit: 10 }), validate(verifySchema),
+function setSessionCookie(res, token) {
+  res.cookie(config.sessionCookieName, token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: config.sessionTtlSeconds * 1000,
+    secure: false,
+  });
+}
+
+router.post('/otp/verify', ipRateLimit({ route: 'otp-verify', limit: 60 }), validate(verifySchema),
   asyncHandler(async (req, res) => {
     const { email, code } = req.body;
     const deviceId = (req.headers['x-device-id'] || '').toString().trim() || null;
@@ -58,12 +68,14 @@ router.post('/otp/verify', ipRateLimit({ route: 'otp-verify', limit: 10 }), vali
     const session = await createAuthSession(user.id, user.role, deviceId);
     await writeAudit({ actorId: user.id, action: 'LOGIN', ip: clientIp(req), deviceId });
 
+    setSessionCookie(res, session.token);
     res.json({ token: session.token, expiresAt: session.expiresAt, user: publicUser(user) });
   }),
 );
 
 router.post('/logout', authenticate, asyncHandler(async (req, res) => {
   await destroyAuthSession(req.tokenId);
+  res.clearCookie(config.sessionCookieName, { path: '/' });
   res.status(204).end();
 }));
 
@@ -71,14 +83,14 @@ router.get('/me', authenticate, asyncHandler(async (req, res) => {
   res.json({ user: req.user, deviceBound: !!req.user.boundDeviceId });
 }));
 
-router.post('/step-up/request', authenticate, requireRole('student'), ipRateLimit({ route: 'stepup-request', limit: 10 }),
+router.post('/step-up/request', authenticate, requireRole('student'), ipRateLimit({ route: 'stepup-request', limit: 60 }),
   asyncHandler(async (req, res) => {
     const { expiresInSeconds } = await requestOtp(req.user.email);
     res.json({ message: 'If this email is registered, a code has been sent.', expiresInSeconds });
   }),
 );
 
-router.post('/step-up/verify', authenticate, requireRole('student'), ipRateLimit({ route: 'stepup-verify', limit: 10 }),
+router.post('/step-up/verify', authenticate, requireRole('student'), ipRateLimit({ route: 'stepup-verify', limit: 60 }),
   validate(stepUpVerifySchema),
   asyncHandler(async (req, res) => {
     await verifyOtpCode(req.user.email, req.body.code);

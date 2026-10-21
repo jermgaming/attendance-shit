@@ -1,6 +1,8 @@
 import { Server } from 'socket.io';
 import { query } from '../db/pool.js';
 import { getAuthSession } from '../services/authSessionService.js';
+import { readCookieValue } from '../middleware/auth.js';
+import { config } from '../config.js';
 import { initEmitter } from './emitter.js';
 
 export function setupSockets(httpServer) {
@@ -9,7 +11,8 @@ export function setupSockets(httpServer) {
 
   io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth?.token;
+      const token = socket.handshake.auth?.token
+        || readCookieValue(socket.handshake.headers.cookie, config.sessionCookieName);
       const session = token ? await getAuthSession(token) : null;
       if (!session) return next(new Error('UNAUTHENTICATED'));
       const { rows } = await query(
