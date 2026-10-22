@@ -11,6 +11,7 @@ export default function SessionsList({ onSelect }) {
     section: '',
     durationMinutes: 60,
     rotationIntervalSeconds: 20,
+    markMode: 'code',
   });
   const [busy, setBusy] = useState(false);
   const pageSize = 20;
@@ -32,6 +33,7 @@ export default function SessionsList({ onSelect }) {
         section: form.section.trim() || null,
         durationMinutes: Number(form.durationMinutes),
         rotationIntervalSeconds: Number(form.rotationIntervalSeconds),
+        markMode: form.markMode,
       });
       onSelect(res.data);
     } catch (err) {
@@ -60,6 +62,15 @@ export default function SessionsList({ onSelect }) {
             <input type="number" min={15} max={30} value={form.rotationIntervalSeconds}
               onChange={(e) => setForm({ ...form, rotationIntervalSeconds: e.target.value })} />
           </label>
+          <label className="muted">Marking method</label>
+          <div className="toolbar">
+            <button type="button"
+              className={form.markMode === 'code' ? 'active small' : 'secondary small'}
+              onClick={() => setForm({ ...form, markMode: 'code' })}>Type code</button>
+            <button type="button"
+              className={form.markMode === 'qr' ? 'active small' : 'secondary small'}
+              onClick={() => setForm({ ...form, markMode: 'qr' })}>Scan QR</button>
+          </div>
           <button disabled={busy || sessions.some((s) => s.status === 'open')}>
             Start session
           </button>

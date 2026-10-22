@@ -44,6 +44,13 @@ export const config = {
   otpMaxRequests: Number(process.env.OTP_MAX_REQUESTS || 5),
   otpMaxAttempts: Number(process.env.OTP_MAX_ATTEMPTS || 10),
   rotationIntervalDefault: Number(process.env.ROTATION_INTERVAL_DEFAULT || 20),
+  defaultMarkMode: (() => {
+    const mode = process.env.MARK_MODE_DEFAULT || 'code';
+    if (mode !== 'code' && mode !== 'qr') {
+      throw new Error(`MARK_MODE_DEFAULT must be 'code' or 'qr', got '${mode}'`);
+    }
+    return mode;
+  })(),
   allowedSubnets: list('ALLOWED_SUBNETS'),
   enableDeviceBinding: bool('ENABLE_DEVICE_BINDING', true),
   requireFreshOtpOnMark: bool('REQUIRE_FRESH_OTP_ON_MARK', false),

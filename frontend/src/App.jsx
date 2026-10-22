@@ -5,6 +5,7 @@ import StudentHome from './pages/StudentHome.jsx';
 import History from './pages/History.jsx';
 import TeacherDashboard from './pages/TeacherDashboard.jsx';
 import ProjectorScreen from './pages/ProjectorScreen.jsx';
+import ScanPage from './pages/ScanPage.jsx';
 
 function RequireAuth({ roles, children }) {
   const { user } = useAuth();
@@ -25,6 +26,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/scan" element={<ScanPage />} />
       <Route path="/student" element={<RequireAuth roles={['student']}><StudentHome /></RequireAuth>} />
       <Route path="/history" element={<RequireAuth roles={['student']}><History /></RequireAuth>} />
       <Route path="/teacher" element={<RequireAuth roles={['teacher', 'admin']}><TeacherDashboard /></RequireAuth>} />

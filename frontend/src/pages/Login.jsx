@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api, { errorMessage } from '../api.js';
 import { useAuth } from '../auth.jsx';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [step, setStep] = useState('email');
@@ -35,7 +36,12 @@ export default function Login() {
     setError(null);
     try {
       const user = await login(email.trim().toLowerCase(), code.trim());
-      navigate(user.role === 'student' ? '/student' : '/teacher', { replace: true });
+      const returnTo = searchParams.get('returnTo');
+      if (returnTo && returnTo.startsWith('/')) {
+        navigate(returnTo, { replace: true });
+      } else {
+        navigate(user.role === 'student' ? '/student' : '/teacher', { replace: true });
+      }
     } catch (err) {
       setError(errorMessage(err));
     } finally {

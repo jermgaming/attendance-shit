@@ -2,3 +2,5 @@
 - Prefers low-cost or free ways to run/deploy applications (e.g. self-hosted hotspot, free tunnels) over paid services. Confidence: 0.8
 - Prefers simple, easy operational workflows (e.g. a one-command script) over multi-step or technically complex setup. Confidence: 0.7
 - Operates on Windows with Docker Desktop; expects host-level commands in PowerShell (plus WSL) and runs/restarts the app via Docker Compose. Confidence: 0.8
+- Prefers end-to-end fixes implemented in a single pass rather than incremental/iterative changes (e.g. "Implement and fix it end to end in ONE pass"). Confidence: 0.7
+- Prefers a plan first for new features before any code is written (e.g. "give me just the plan dont write any code or something"). Confidence: 0.8

@@ -26,6 +26,7 @@ const createSchema = z.object({
   section: z.string().trim().max(50).optional().nullable(),
   durationMinutes: z.number().int().min(1).max(720).default(60),
   rotationIntervalSeconds: z.number().int().min(15).max(30).default(config.rotationIntervalDefault),
+  markMode: z.enum(['code', 'qr']).default(config.defaultMarkMode),
 });
 
 const rotationSchema = z.object({
@@ -62,13 +63,14 @@ function mapSession(row) {
     autoCloseAt: row.auto_close_at,
     rotationIntervalSeconds: row.rotation_interval_seconds,
     rotationPaused: row.rotation_paused,
+    markMode: row.mark_mode,
     teacherName: row.teacher_name || undefined,
     teacherId: row.teacher_id,
   };
 }
 
 router.post('/', validate(createSchema), asyncHandler(async (req, res) => {
-  const { subject, section, durationMinutes, rotationIntervalSeconds } = req.body;
+  const { subject, section, durationMinutes, rotationIntervalSeconds, markMode } = req.body;
   const open = await query(
     `SELECT id FROM class_sessions WHERE teacher_id = $1 AND status = 'open'`,
     [req.user.id],
@@ -77,9 +79,9 @@ router.post('/', validate(createSchema), asyncHandler(async (req, res) => {
 
   try {
     const { rows } = await query(
-      `INSERT INTO class_sessions (teacher_id, subject, section, auto_close_at, rotation_interval_seconds)
-       VALUES ($1, $2, $3, now() + ($4 || ' minutes')::interval, $5) RETURNING *`,
-      [req.user.id, subject, section || null, String(durationMinutes), rotationIntervalSeconds],
+      `INSERT INTO class_sessions (teacher_id, subject, section, auto_close_at, rotation_interval_seconds, mark_mode)
+       VALUES ($1, $2, $3, now() + ($4 || ' minutes')::interval, $5, $6) RETURNING *`,
+      [req.user.id, subject, section || null, String(durationMinutes), rotationIntervalSeconds, markMode],
     );
     const session = rows[0];
     await rotation.startRotation(session);

@@ -1,1 +1,2 @@
 - Prefers action-first responses when reporting a broken feature (e.g. "//fix that") — directly fix the problem rather than lead with lengthy diagnosis or explanation. Confidence: 0.7
+- Prefers plain-language, step-by-step usage instructions when asking how a feature or app works (e.g. "tell me how to use this thing?"). Confidence: 0.6

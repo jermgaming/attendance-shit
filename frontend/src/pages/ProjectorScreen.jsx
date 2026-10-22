@@ -9,6 +9,7 @@ export default function ProjectorScreen() {
   const [code, setCode] = useState(null);
   const [validFor, setValidFor] = useState(0);
   const [intervalSeconds, setIntervalSeconds] = useState(20);
+  const [markMode, setMarkMode] = useState('code');
   const [subject, setSubject] = useState('');
   const [counts, setCounts] = useState({ present: 0, total: 0 });
   const [closed, setClosed] = useState(false);
@@ -23,6 +24,7 @@ export default function ProjectorScreen() {
     setPaused(!!p.paused);
     setIntervalSeconds(p.intervalSeconds);
     setValidFor(p.validForSeconds ?? p.intervalSeconds);
+    setMarkMode(p.markMode ?? 'code');
   }, []);
 
   const fetchCode = useCallback(async () => {
@@ -88,6 +90,7 @@ export default function ProjectorScreen() {
   }, [intervalSeconds, fetchCode]);
 
   const qrValue = lan || window.location.origin;
+  const scanUrl = `${qrValue}/scan?s=${sessionId}&c=${code || ''}`;
 
   if (error && !code) {
     return <div className="projector"><h1>{error}</h1></div>;
@@ -100,6 +103,16 @@ export default function ProjectorScreen() {
         <h1>Session closed — {counts.present}/{counts.total} present</h1>
       ) : paused ? (
         <div className="big-code" style={{ color: '#facc15', fontSize: 'clamp(40px, 10vw, 110px)' }}>PAUSED</div>
+      ) : markMode === 'qr' && code ? (
+        <>
+          <div style={{ background: '#fff', padding: 20, borderRadius: 12, display: 'inline-block' }}>
+            <QRCodeSVG value={scanUrl} size={300} />
+          </div>
+          <p className="muted" style={{ marginTop: 12, fontSize: 20 }}>Scan to mark present — code {code}</p>
+          <div className="code-progress">
+            <div style={{ width: `${Math.max(0, Math.min(100, (validFor / intervalSeconds) * 100))}%` }} />
+          </div>
+        </>
       ) : (
         <>
           <div className="big-code">{code || '······'}</div>

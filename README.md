@@ -18,7 +18,7 @@ Only the app port is published. Postgres and Redis live on the internal network.
 ## How it works
 
 - **Login**: `POST /api/v1/auth/otp/request` emails a 6-digit code (5 min, 5 wrong attempts invalidates, 3 requests / 15 min per email, 10 / min per IP). `verify` returns an opaque token stored in Redis (`SESSION_TTL_HOURS`).
-- **Sessions**: a teacher opens one session at a time (partial unique index enforces it). A 6-digit code rotates every 15–30 s; only current or previous code is accepted. The code never reaches any student endpoint or socket event.
+- **Sessions**: a teacher opens one session at a time (partial unique index enforces it). A 6-digit code rotates every 15–30 s; only current or previous code is accepted. The code never reaches any student endpoint or socket event. Two marking modes per session (`MARK_MODE_DEFAULT` in `.env` sets the default): **Type code** (students type the rotating code) or **Scan QR** (the projector shows a QR encoding `/scan?s=<sessionId>&c=<code>`; scanning it marks the student instantly — the QR changes with each rotation).
 - **Marking**: the full validation order is in the API spec (session open → subnet → section → device → step-up OTP → attempt limit → code → atomic `SADD` → Postgres insert with unique(session_id, student_id) as the final guard).
 - **Golden rule**: every mark goes to Postgres. If Redis restarts empty, open sessions rebuild their live present set from Postgres; rotation resumes on app startup.
 - **Flags**: `SHARED_IP`, `SHARED_DEVICE`, `CODE_FAILURES` are stored in `audit_log` (action `FLAG`) and surfaced at `GET /api/v1/sessions/:id/flags`. `LAST_SECOND` (cross-session pattern) is left to a report job.

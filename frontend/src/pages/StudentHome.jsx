@@ -3,6 +3,20 @@ import { Link } from 'react-router-dom';
 import api, { errorMessage } from '../api.js';
 import { useAuth } from '../auth.jsx';
 import { getSocket } from '../socket.js';
+import QrScanner from '../components/QrScanner.jsx';
+
+function parseScanText(text) {
+  try {
+    const u = new URL(text);
+    if (u.pathname === '/scan') {
+      return { s: u.searchParams.get('s'), c: u.searchParams.get('c') };
+    }
+  } catch { /* not an absolute URL */ }
+  const m = text.match(/[?&]s=([a-f0-9-]{36})[&?].*[?&]c=(\d{6})/)
+    || text.match(/[?&]c=(\d{6})[&?].*[?&]s=([a-f0-9-]{36})/);
+  if (!m) return null;
+  return text.indexOf(`s=${m[1]}`) < text.indexOf(`c=${m[2]}`) ? { s: m[1], c: m[2] } : { s: m[2], c: m[1] };
+}
 
 export default function StudentHome() {
   const { user, logout } = useAuth();
@@ -12,6 +26,7 @@ export default function StudentHome() {
   const [error, setError] = useState(null);
   const [stepUp, setStepUp] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const socketRef = useRef(null);
 
   const refresh = useCallback(async () => {
@@ -38,13 +53,12 @@ export default function StudentHome() {
     };
   }, [refresh]);
 
-  const mark = async (e) => {
-    e.preventDefault();
+  const doMark = async (sessionId, codeInput) => {
     setBusy(true);
     setError(null);
     setResult(null);
     try {
-      const res = await api.post(`/sessions/${active.id}/mark`, { code });
+      const res = await api.post(`/sessions/${sessionId}/mark`, { code: codeInput });
       setResult(res.data);
       setCode('');
       refresh();
@@ -58,6 +72,21 @@ export default function StudentHome() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const mark = async (e) => {
+    e.preventDefault();
+    await doMark(active.id, code);
+  };
+
+  const handleScan = async (text) => {
+    setScanning(false);
+    const parsed = parseScanText(text);
+    if (!parsed) {
+      setError('That QR code is not a valid attendance code.');
+      return;
+    }
+    await doMark(parsed.s, parsed.c);
   };
 
   return (
@@ -94,19 +123,31 @@ export default function StudentHome() {
                   You are marked present{result ? ` in ${result.subject}` : ''}. Sit back and relax.
                 </div>
               ) : (
-                <form className="stack mark-form" onSubmit={mark}>
-                  <input
-                    inputMode="numeric"
-                    pattern="\d{6}"
-                    maxLength={6}
-                    placeholder="· · · · · ·"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                    required
-                    autoFocus
-                  />
-                  <button disabled={busy || code.length !== 6}>Mark present</button>
-                </form>
+                <>
+                  {active.markMode === 'qr' && (
+                    <div className="stack" style={{ marginBottom: 12 }}>
+                      {scanning ? (
+                        <QrScanner onScan={handleScan} onClose={() => setScanning(false)} />
+                      ) : (
+                        <button type="button" onClick={() => setScanning(true)} disabled={busy}>
+                          Scan QR with camera
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <form className="stack mark-form" onSubmit={mark}>
+                    <input
+                      inputMode="numeric"
+                      pattern="\d{6}"
+                      maxLength={6}
+                      placeholder="· · · · · ·"
+                      value={code}
+                      onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                      required
+                    />
+                    <button disabled={busy || code.length !== 6}>Mark present</button>
+                  </form>
+                </>
               )}
               {error && <div className="message error" style={{ marginTop: 12 }}>{error}</div>}
               {stepUp && !result && <StepUpBox onDone={() => { setStepUp(false); }} />}
@@ -114,8 +155,10 @@ export default function StudentHome() {
             <div className="card">
               <h3>How it works</h3>
               <p className="muted">
-                Type the 6-digit code shown on the projector. The code rotates, so check the screen.
-                You can only mark once per class, from this device.
+                {active.markMode === 'qr'
+                  ? 'Scan the QR code shown on the projector, or type the code below. The code rotates, so check the screen.'
+                  : 'Type the 6-digit code shown on the projector. The code rotates, so check the screen.'}
+                {' '}You can only mark once per class, from this device.
               </p>
             </div>
           </div>

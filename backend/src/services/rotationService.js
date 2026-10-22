@@ -50,7 +50,7 @@ async function tick(sessionId) {
 
 export async function rotate(sessionId) {
   const { rows } = await query(
-    `SELECT status, rotation_interval_seconds FROM class_sessions WHERE id = $1`,
+    `SELECT status, rotation_interval_seconds, mark_mode FROM class_sessions WHERE id = $1`,
     [sessionId],
   );
   const session = rows[0];
@@ -65,6 +65,7 @@ export async function rotate(sessionId) {
     validForSeconds: session.rotation_interval_seconds,
     intervalSeconds: session.rotation_interval_seconds,
     windowId,
+    markMode: session.mark_mode,
   });
   return { code, windowId };
 }
@@ -114,6 +115,7 @@ export async function getCodePayload(session) {
       paused: true,
       intervalSeconds: session.rotation_interval_seconds,
       windowId,
+      markMode: session.mark_mode,
     };
   }
   let code = await redis.get(`code:current:${session.id}`);
@@ -129,6 +131,7 @@ export async function getCodePayload(session) {
     paused: false,
     intervalSeconds: session.rotation_interval_seconds,
     windowId,
+    markMode: session.mark_mode,
   };
 }
 
