@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vitejs/plugin-basic-ssl": "^1.2.0",
     "axios": "^1.7.9",
     "html5-qrcode": "^2.3.8",
     "qrcode.react": "^4.2.0",

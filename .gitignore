@@ -7,3 +7,7 @@ backups/
 .DS_Store
 npm-debug.log*
 .commandocode
+convert.js
+./frontend/cert
+CY-AIC
+CY-AIMLC
