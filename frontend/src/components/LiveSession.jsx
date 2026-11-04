@@ -44,7 +44,9 @@ export default function LiveSession({ session, onClosed, onBack }) {
     socket.emit('session:join', { sessionId: session.id });
     const onMarked = (p) => {
       if (p.sessionId !== session.id) return;
-      setNotice(`${p.student.name} marked present`);
+      const studentName = p.student?.name || 'Someone';
+      const deviceId = p.deviceId || '';
+      setNotice(`${studentName} marked present${deviceId ? ` (device: ${deviceId.slice(0, 8)}...)` : ''}`);
       throttledLoad();
     };
     const onUpdated = (p) => { if (p.sessionId === session.id) throttledLoad(); };
@@ -173,7 +175,7 @@ export default function LiveSession({ session, onClosed, onBack }) {
           </div>
           <div style={{ maxHeight: 520, overflow: 'auto' }}>
             <table>
-              <thead><tr><th>Roll</th><th>Name</th><th>Status</th><th>Marked at</th><th></th></tr></thead>
+              <thead><tr><th>Roll</th><th>Name</th><th>Device</th><th>Status</th><th>Marked at</th><th></th></tr></thead>
               <tbody>
                 {attendance?.students.map((s) => (
                   <tr key={s.studentId} className={s.flagged ? 'flagged' : ''}>
@@ -183,6 +185,7 @@ export default function LiveSession({ session, onClosed, onBack }) {
                       {s.flagged && <span className="muted" style={{ marginLeft: 6, fontSize: 12 }}>(flagged)</span>}
                       {s.note && <div className="muted" style={{ fontSize: 12 }}>{s.note}</div>}
                     </td>
+                    <td>{s.deviceId ? <code style={{ fontSize: 12 }}>{s.deviceId.slice(0, 8)}…</code> : '—'}</td>
                     <td><span className={`badge ${s.status}`}>{s.status}</span></td>
                     <td>{s.markedAt ? new Date(s.markedAt).toLocaleTimeString() : '—'}</td>
                     <td>
@@ -193,7 +196,7 @@ export default function LiveSession({ session, onClosed, onBack }) {
                     </td>
                   </tr>
                 ))}
-                {!attendance?.students.length && <tr><td colSpan={5} className="muted">No students match.</td></tr>}
+                {!attendance?.students.length && <tr><td colSpan={6} className="muted">No students match.</td></tr>}
               </tbody>
             </table>
           </div>
@@ -204,7 +207,19 @@ export default function LiveSession({ session, onClosed, onBack }) {
           {flags.length ? (
             <ul className="flag-list">
               {flags.map((f, i) => (
-                <li key={i}><strong>{f.type}</strong><br />{f.detail}</li>
+                <li key={i}>
+                  <strong>{f.type}</strong><br />{f.detail}
+                  {f.studentIds?.length > 0 && (
+                    <div className="muted" style={{ marginTop: 4 }}>
+                      Students: {f.studentIds
+                        .map((id) => {
+                          const s = attendance?.students?.find((st) => st.studentId === id);
+                          return s ? `${s.name} (${s.rollNumber || '—'})` : id;
+                        })
+                        .join(', ')}
+                    </div>
+                  )}
+                </li>
               ))}
             </ul>
           ) : (

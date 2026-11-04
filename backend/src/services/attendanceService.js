@@ -105,6 +105,8 @@ export async function markPresent({ session, student, code, ip, deviceId }) {
     sessionId: session.id,
     student: { id: student.id, name: student.name, rollNumber: student.rollNumber },
     markedAt: markedAt.toISOString(),
+    deviceId: deviceId || null,
+    markedBy: student.id ? 'student' : null,
     counts,
   });
 
@@ -190,7 +192,7 @@ export async function getLiveAttendance(session, { status = 'all', search = null
     const presentIds = new Set(await redis.smembers(`present:${session.id}`));
     if (presentIds.size) {
       const { rows } = await query(
-        `SELECT student_id, marked_at, marked_by, note FROM attendance
+        `SELECT student_id, marked_at, marked_by, note, device_id FROM attendance
          WHERE session_id = $1 AND student_id = ANY($2)`,
         [session.id, [...presentIds]],
       );
@@ -200,17 +202,18 @@ export async function getLiveAttendance(session, { status = 'all', search = null
           markedAt: row.marked_at,
           markedBy: row.marked_by,
           note: row.note,
+          deviceId: row.device_id,
         });
       }
     }
     for (const student of roster) {
       if (!marks.has(student.id) && presentIds.has(student.id)) {
-        marks.set(student.id, { status: 'present', markedAt: null, markedBy: 'student', note: null });
+        marks.set(student.id, { status: 'present', markedAt: null, markedBy: 'student', note: null, deviceId: null });
       }
     }
   } else {
     const { rows } = await query(
-      `SELECT student_id, status, marked_at, marked_by, note FROM attendance WHERE session_id = $1`,
+      `SELECT student_id, status, marked_at, marked_by, note, device_id FROM attendance WHERE session_id = $1`,
       [session.id],
     );
     for (const row of rows) {
@@ -219,6 +222,7 @@ export async function getLiveAttendance(session, { status = 'all', search = null
         markedAt: row.marked_at,
         markedBy: row.marked_by,
         note: row.note,
+        deviceId: row.device_id,
       });
     }
   }
@@ -236,6 +240,7 @@ export async function getLiveAttendance(session, { status = 'all', search = null
         markedAt: mark?.markedAt || null,
         markedBy: mark?.markedBy || null,
         note: mark?.note || null,
+        deviceId: mark?.deviceId || null,
         flagged: flagged.has(student.id),
       };
     })
