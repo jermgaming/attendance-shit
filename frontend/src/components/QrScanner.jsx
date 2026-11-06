@@ -50,9 +50,9 @@ export default function QrScanner({ onScan, onClose }) {
 
   return (
     <div className="stack">
-      <div id="attendance-qr-scanner"
+      <div id="attendance-qr-scanner"  
         style={{ width: '100%', maxWidth: 320, margin: '0 auto', borderRadius: 8, overflow: 'hidden' }} />
-      {error && <div className="message error" style={{ marginTop: 10 }}>{cameraErrorMessage(error)}</div>}
+      {error && <div className="message error" style={{ marginTop: 10, padding: '8px 12px', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: 6 }}>{cameraErrorMessage(error)}</div>}  
       <button type="button" className="secondary small" onClick={onClose}>Cancel</button>
     </div>
   );

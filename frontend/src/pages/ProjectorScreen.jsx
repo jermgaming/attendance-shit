@@ -108,7 +108,6 @@ export default function ProjectorScreen() {
           <div style={{ background: '#fff', padding: 20, borderRadius: 12, display: 'inline-block' }}>
             <QRCodeSVG value={scanUrl} size={300} />
           </div>
-          <p className="muted" style={{ marginTop: 12, fontSize: 20 }}>Scan to mark present — code {code}</p>
           <div className="code-progress">
             <div style={{ width: `${Math.max(0, Math.min(100, (validFor / intervalSeconds) * 100))}%` }} />
           </div>
@@ -123,11 +122,7 @@ export default function ProjectorScreen() {
       )}
       <div className="meta">
         <span className="count">{counts.present}<span className="muted"> / {counts.total} present</span></span>
-        <span className="qr">
-          <QRCodeSVG value={qrValue} size={110} />
-        </span>
       </div>
-      <p className="muted" style={{ color: '#94a3b8' }}>Scan to open {qrValue}</p>
     </div>
   );
 }

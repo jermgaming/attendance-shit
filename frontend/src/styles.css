@@ -127,7 +127,7 @@ tr.flagged { background: #fef3c7; }
 .projector .count { font-weight: 800; }
 .code-progress { width: min(640px, 80vw); height: 10px; background: #1e293b; border-radius: 999px; overflow: hidden; }
 .code-progress > div { height: 100%; background: #4ade80; transition: width 1s linear; }
-.qr { background: #fff; padding: 12px; border-radius: 12px; }
+
 
 .count-cards { display: flex; gap: 16px; flex-wrap: wrap; }
 .count-cards .card { flex: 1; min-width: 140px; text-align: center; }
