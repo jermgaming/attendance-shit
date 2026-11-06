@@ -107,6 +107,19 @@ services:
       - "127.0.0.1:8025:8025"
     restart: unless-stopped
 
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    depends_on:
+      - app
+    restart: unless-stopped
+
 volumes:
   pgdata:
   redisdata:
